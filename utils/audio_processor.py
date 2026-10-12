@@ -1,15 +1,18 @@
 import os
 import yt_dlp
+from yt_dlp.networking.impersonate import ImpersonateTarget
 
 def download_youtube_audio(youtube_url: str, output_path: str = "downloads") -> str:
     """
-    Downloads audio from a YouTube URL using yt-dlp safely.
+    Downloads audio from a YouTube URL using yt-dlp with valid ImpersonateTarget.
     """
     os.makedirs(output_path, exist_ok=True)
     
     ydl_opts = {
         'format': 'm4a/bestaudio/best',
         'outtmpl': os.path.join(output_path, '%(id)s.%(ext)s'),
+        'impersonate': ImpersonateTarget('chrome'),
+        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
         'quiet': True,
         'no_warnings': True,
     }
