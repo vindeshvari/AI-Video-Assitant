@@ -3,14 +3,13 @@ import yt_dlp
 
 def download_youtube_audio(youtube_url: str, output_path: str = "downloads") -> str:
     """
-    Downloads audio from a YouTube URL using yt-dlp with client impersonation.
+    Downloads audio from a YouTube URL using yt-dlp safely.
     """
     os.makedirs(output_path, exist_ok=True)
     
     ydl_opts = {
         'format': 'm4a/bestaudio/best',
         'outtmpl': os.path.join(output_path, '%(id)s.%(ext)s'),
-        'impersonate': 'chrome',
         'quiet': True,
         'no_warnings': True,
     }
