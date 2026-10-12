@@ -1,5 +1,6 @@
 import streamlit as st
 import time
+import traceback
 from dotenv import load_dotenv
 from utils.audio_processor import process_input
 from core.transcriber import transcribe_all
@@ -421,10 +422,8 @@ if run_btn:
             st.rerun()
 
         except Exception as e:
-            for k in ["audio","transcript","title","summary","extract","rag"]:
-                if st.session_state.pipeline_steps.get(k) == "active":
-                    st.session_state.pipeline_steps[k] = "pending"
-            progress_placeholder.error(f"❌ Error: {e}")
+                  st.error(f"Error: {str(e) or repr(e)}")
+                  st.code(traceback.format_exc())
 
 # ── Results ──────────────────────────────────────────────────────────────────────
 if st.session_state.result:
