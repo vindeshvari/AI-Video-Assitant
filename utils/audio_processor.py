@@ -4,7 +4,7 @@ from yt_dlp.networking.impersonate import ImpersonateTarget
 
 def download_youtube_audio(youtube_url: str, output_path: str = "downloads") -> str:
     """
-    Downloads audio from a YouTube URL using yt-dlp with valid ImpersonateTarget.
+    Downloads audio from a YouTube URL with cloud-safe fallbacks.
     """
     os.makedirs(output_path, exist_ok=True)
     
@@ -12,15 +12,20 @@ def download_youtube_audio(youtube_url: str, output_path: str = "downloads") -> 
         'format': 'm4a/bestaudio/best',
         'outtmpl': os.path.join(output_path, '%(id)s.%(ext)s'),
         'impersonate': ImpersonateTarget('chrome'),
-        'extractor_args': {'youtube': {'player_client': ['android', 'web']}},
         'quiet': True,
         'no_warnings': True,
     }
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(youtube_url, download=True)
-        filename = ydl.prepare_filename(info)
-        return filename
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(youtube_url, download=True)
+            filename = ydl.prepare_filename(info)
+            return filename
+    except Exception as e:
+        raise RuntimeError(
+            "YouTube has blocked direct downloads from this cloud server's IP address (403 Forbidden). "
+            "Please use the **Browse files** uploader in the sidebar to upload your audio/video file directly!"
+        ) from e
 
 def process_input(youtube_url: str = None, uploaded_file = None, output_path: str = "downloads") -> str:
     """
