@@ -28,3 +28,19 @@ def download_youtube_audio(youtube_url: str, output_path: str = "downloads") -> 
         base, _ = os.path.splitext(filename)
         audio_file = f"{base}.mp3"
         return audio_file
+
+def process_input(youtube_url: str = None, uploaded_file = None, output_path: str = "downloads") -> str:
+    """
+    Processes either a YouTube URL or an uploaded audio file and returns the local path to the audio file.
+    """
+    os.makedirs(output_path, exist_ok=True)
+    
+    if youtube_url:
+        return download_youtube_audio(youtube_url, output_path)
+    elif uploaded_file is not None:
+        file_path = os.path.join(output_path, uploaded_file.name)
+        with open(file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        return file_path
+    else:
+        raise ValueError("Either youtube_url or uploaded_file must be provided.")
