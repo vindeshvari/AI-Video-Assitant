@@ -1,34 +1,49 @@
 import yt_dlp
 from pydub import AudioSegment
+from yt_dlp import YoutubeDL
+from yt_dlp.utils import DownloadError
 import os
 
 DOWNLOAD_DIR = 'downloades'
 os.makedirs(DOWNLOAD_DIR,exist_ok = True)
 
-def download_youtube_audio(url :str) ->str:
-    output_path = os.path.join(DOWNLOAD_DIR, "%(title)s.%(ext)s")
+
+def download_youtube_audio(url):
     ydl_opts = {
-    'format': 'bestaudio/best',
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'wav',
-        'preferredquality': '192',
-    }],
-    # Force mobile web client which has looser restrictions on cloud IPs
-    'extractor_args': {
-        'youtube': {
-            'player_client': ['mweb', 'android']
-        }
-    },
-    'nocheckcertificate': True,
-    'ignoreerrors': False,
-    'no_warnings': True,
-    'quiet': True,
-}
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        filename = ydl.prepare_filename(info).replace(".webm", ".wav").replace(".m4a", ".wav")
-    return filename
+        'format': 'bestaudio/best',
+        'postprocessors': [{
+            'key': 'FFmpegExtractAudio',
+            'preferredcodec': 'wav',
+            'preferredquality': '192',
+        }],
+        'extractor_args': {
+            'youtube': {
+                'player_client': ['mweb', 'android']
+            }
+        },
+        'nocheckcertificate': True,
+        'ignoreerrors': False,
+        'no_warnings': True,
+        'quiet': True,
+    }
+
+    try:
+        os.makedirs("downloads", exist_ok=True)
+        output_template = os.path.join("downloads", "%(title)s.%(ext)s")
+        ydl_opts['outtmpl'] = output_template
+
+        with YoutubeDL(ydl_opts) as ydl:
+            info = ydl.extract_info(url, download=True)
+            filename = ydl.prepare_filename(info)
+            base, _ = os.path.splitext(filename)
+            wav_path = base + ".wav"
+            return wav_path
+            
+    except DownloadError as e:
+        raise RuntimeError(
+            "YouTube blocks direct media downloads from cloud hosting servers (Streamlit Cloud IP restriction). "
+            "To use this app with YouTube links, please run the project locally on your computer where your residential IP is allowed."
+        )
 
 
 
