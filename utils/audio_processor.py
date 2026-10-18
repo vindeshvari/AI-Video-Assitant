@@ -17,17 +17,20 @@ def extract_video_id(url):
 
 def download_youtube_audio(url):
     """
-    Fetches the transcript text directly instead of downloading media,
-    completely bypassing YouTube's 403 cloud server download blocks.
+    Fetches the transcript text directly using the updated youtube-transcript-api.
     """
     video_id = extract_video_id(url)
     if not video_id:
         raise ValueError("Invalid YouTube URL provided.")
     
     try:
-        # Fetch transcript entries directly via YouTube's internal caption API
-        transcript_list = YouTubeTranscriptApi.get_transcript(video_id)
-        full_transcript = " ".join([item['text'] for item in transcript_list])
+        # Instantiate the API and fetch the transcript
+        ytt_api = YouTubeTranscriptApi()
+        fetched_transcript = ytt_api.fetch(video_id)
+        
+        # Convert fetched transcript items to text
+        raw_data = fetched_transcript.to_raw_data()
+        full_transcript = " ".join([item['text'] for item in raw_data])
         return full_transcript
     except Exception as e:
         raise RuntimeError(f"Could not fetch YouTube transcript: {e}")
@@ -40,5 +43,4 @@ def process_input(source):
     if "youtube.com" in source or "youtu.be" in source:
         return download_youtube_audio(source)
     else:
-        # Keep your existing logic for handling local audio/video file uploads if needed
         raise NotImplementedError("Local file processing should remain handled by your existing upload logic.")
