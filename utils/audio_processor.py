@@ -14,18 +14,17 @@ def get_ydl_opts():
         'preferredcodec': 'wav',
         'preferredquality': '192',
     }],
-    # Add these keys to prevent 403 Forbidden on cloud deployment
+    # Use curl-cffi to impersonate Chrome and bypass cloud 403 blocks
+    'impersonate': 'chrome',
     'extractor_args': {
         'youtube': {
-            'player_client': ['android', 'web']
+            'player_client': ['web', 'android']
         }
     },
-    'socket_timeout': 30,
     'nocheckcertificate': True,
     'ignoreerrors': False,
     'no_warnings': True,
     'quiet': True,
-
 }
 
     
